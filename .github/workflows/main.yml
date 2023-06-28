@@ -8,10 +8,32 @@ on:
 
 jobs:
   run_ubuntu_20:
-    runs-on: ubuntu-20.04
-    name: Build for Ubuntu-20
+    strategy:
+      matrix:
+        version: [20, 22]
+
+    runs-on: ubuntu-${{ matrix.version }}.04
+    name: Build for Ubuntu-${{matrix.version}}
+    permissions:
+      contents: write
 
     steps:
+    - name: Map variables
+      uses: kanga333/variable-mapper@master
+      with:
+        key: "${{matrix.version}}"
+        map: |
+          {
+            "20": {
+              "OPENVINO_PACKAGE_URL": "https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.0/linux/l_openvino_toolkit_ubuntu20_2023.0.0.10926.b4452d56304_x86_64.tgz"
+            },
+            ".*": {
+              "OPENVINO_PACKAGE_URL": "https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.0/linux/l_openvino_toolkit_rhel8_2023.0.0.10926.b4452d56304_x86_64.tgz"
+            }
+          }
+        export_to: env
+        mode: first_match
+
     - name: Clone repository
       uses: actions/checkout@v2
 
@@ -22,7 +44,7 @@ jobs:
 
     - name: Clone
       run: |
-        git clone https://github.com/openvinotoolkit/openvino_contrib -b releases/2023/0 --depth 1
+        git clone https://github.com/makewise-vision/openvino_contrib -b releases/2023/0 --depth 1
         cd openvino_contrib && echo "https://github.com/openvinotoolkit/openvino_contrib/commit/$(git rev-parse HEAD)" >> ../versions.txt && cd ..
 
         git clone https://github.com/openvinotoolkit/testdata -b releases/2023/0 --depth 1
@@ -41,7 +63,7 @@ jobs:
 
     - name: Install OpenVINO
       run: |
-        wget -q https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.0/linux/l_openvino_toolkit_ubuntu20_2023.0.0.10926.b4452d56304_x86_64.tgz -O openvino.tgz
+        wget -q ${{ env.OPENVINO_PACKAGE_URL }} -O openvino.tgz
         sudo mkdir -p /opt/intel/openvino
         sudo tar -xf openvino.tgz -C /opt/intel/openvino --strip-components=1
         sudo apt-get install -y libtbb2 libpugixml1v5
@@ -63,6 +85,11 @@ jobs:
         ../../../gradle-6.2.2/bin/gradle test -Prun_tests -DMODELS_PATH=../../../testdata -Ddevice=CPU --info
       working-directory: openvino_contrib/modules/java_api
 
+    - name: Rename package
+      run: |
+        mv openvino-2023.0-linux-x86_64.jar openvino-2023.0-linux-x86_64-ubuntu${{ matrix.version }}.jar
+      working-directory: openvino_contrib/modules/java_api/build/libs
+
     - name: Upload
       uses: actions/upload-artifact@v2
       with:
@@ -77,4 +104,4 @@ jobs:
         prerelease: false
         generate_release_notes: true
         files: |
-          openvino_contrib/modules/java_api/build/libs/openvino-2023.0-linux-x86_64.jar
+          openvino_contrib/modules/java_api/build/libs/openvino-2023.0-linux-x86_64-ubuntu${{ matrix.version }}.jar
