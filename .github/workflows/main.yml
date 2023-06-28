@@ -14,6 +14,7 @@ jobs:
 
     runs-on: ubuntu-${{ matrix.version }}.04
     name: Build for Ubuntu-${{matrix.version}}
+
     permissions:
       contents: write
 
@@ -88,6 +89,7 @@ jobs:
     - name: Rename package
       run: |
         mv openvino-2023.0-linux-x86_64.jar openvino-2023.0-linux-x86_64-ubuntu${{ matrix.version }}.jar
+        mv openvino-2023.0-linux-x86_64-sources.jar openvino-2023.0-sources.jar
       working-directory: openvino_contrib/modules/java_api/build/libs
 
     - name: Upload
@@ -100,8 +102,144 @@ jobs:
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        draft: true
-        prerelease: false
-        generate_release_notes: true
         files: |
           openvino_contrib/modules/java_api/build/libs/openvino-2023.0-linux-x86_64-ubuntu${{ matrix.version }}.jar
+          openvino_contrib/modules/java_api/build/libs/openvino-2023.0-sources.jar
+
+  run_win:
+    runs-on: windows-latest
+    name: Build on Windows
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Clone
+        run: |
+          git clone https://github.com/openvinotoolkit/openvino_contrib -b releases/2023/0 --depth 1
+          git clone https://github.com/openvinotoolkit/testdata
+
+      - name: Install Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11.0.2'
+
+      - name: Download OpenVINO
+        run: |
+          Invoke-WebRequest https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.0/windows/w_openvino_toolkit_windows_2023.0.0.10926.b4452d56304_x86_64.zip -OutFile openvino.zip
+          Expand-Archive -Path openvino.zip -DestinationPath "C:\Program Files (x86)\Intel"
+          Move-Item -Path "C:\Program Files (x86)\Intel\w_openvino_toolkit_windows_2023.0.0.10926.b4452d56304_x86_64" -Destination "C:\Program Files (x86)\Intel\openvino"
+        shell: pwsh
+
+      - name: Build bindings
+        run: |
+          mkdir build_api && cd build_api
+          call "C:\Program Files (x86)\Intel\openvino\setupvars.bat"
+          cmake ..\openvino_contrib\modules\java_api -DCMAKE_BUILD_TYPE=Release
+          cmake --build . --config Release -j 2
+          move Release\\*.dll "C:\Program Files (x86)\Intel\openvino\runtime\bin\intel64\Release"
+        shell: cmd
+
+      - name: Build package
+        run: |
+          call "C:\Program Files (x86)\Intel\openvino\setupvars.bat"
+          gradle clean build --info
+          gradle test -Prun_tests -DMODELS_PATH=..\\..\\..\\testdata -Ddevice=CPU --info
+        shell: cmd
+        working-directory: openvino_contrib\\modules\\java_api
+
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: "pkg_win"
+          path: "openvino_contrib\\modules\\java_api\\build\\libs\\*.jar"
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            openvino_contrib/modules/java_api/build/libs/openvino-2023.0-windows-x86_64.jar
+
+  run_mac:
+    runs-on: macos-latest
+    name: Build on Mac
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Clone
+        run: |
+          git clone https://github.com/openvinotoolkit/openvino_contrib -b releases/2023/0 --depth 1
+          git clone https://github.com/openvinotoolkit/testdata
+
+      - name: Install Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11.0.2'
+
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install OpenVINO
+        run: |
+          wget -q https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.0/macos/m_openvino_toolkit_macos_10_15_2023.0.0.10926.b4452d56304_x86_64.tgz -O openvino.tgz
+          sudo mkdir -p /opt/intel/openvino
+          sudo tar -xf openvino.tgz -C /opt/intel/openvino --strip-components=1
+
+      - name: Build bindings
+        run: |
+          brew install coreutils
+          
+          mkdir build_api && cd build_api
+          source /opt/intel/openvino/setupvars.sh
+          cmake ../openvino_contrib/modules/java_api \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_FLAGS="-std=c++11"
+          make -j$(nproc --all)
+          sudo cp *.dylib /opt/intel/openvino/runtime/lib/intel64/Release
+
+      - name: Build package
+        run: |
+          source /opt/intel/openvino/setupvars.sh
+          gradle clean build --info
+          gradle test -Prun_tests -DMODELS_PATH=../../../testdata -Ddevice=CPU --info
+        working-directory: openvino_contrib/modules/java_api
+
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: "pkg_mac"
+          path: "openvino_contrib/modules/java_api/build/libs/*.jar"
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            openvino_contrib/modules/java_api/build/libs/openvino-2023.0-macosx-x86_64.jar
+
+  create_release:
+    runs-on: ubuntu-22.04
+    name: Create release
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          draft: true
+          prerelease: false
+          generate_release_notes: true
