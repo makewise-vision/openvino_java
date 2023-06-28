@@ -89,7 +89,6 @@ jobs:
     - name: Rename package
       run: |
         mv openvino-2023.0-linux-x86_64.jar openvino-2023.0-linux-x86_64-ubuntu${{ matrix.version }}.jar
-        mv openvino-2023.0-linux-x86_64-sources.jar openvino-2023.0-sources.jar
       working-directory: openvino_contrib/modules/java_api/build/libs
 
     - name: Upload
@@ -104,7 +103,6 @@ jobs:
       with:
         files: |
           openvino_contrib/modules/java_api/build/libs/openvino-2023.0-linux-x86_64-ubuntu${{ matrix.version }}.jar
-          openvino_contrib/modules/java_api/build/libs/openvino-2023.0-sources.jar
 
   run_win:
     runs-on: windows-latest
