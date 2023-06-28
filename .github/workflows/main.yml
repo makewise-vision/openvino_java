@@ -7,9 +7,9 @@ on:
       - '**'
 
 jobs:
-  run_linux:
+  run_ubuntu_20:
     runs-on: ubuntu-20.04
-    name: Build on Linux
+    name: Build for Ubuntu-20
 
     steps:
     - name: Clone repository
@@ -41,7 +41,7 @@ jobs:
 
     - name: Install OpenVINO
       run: |
-        wget -q https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.0/linux/l_openvino_toolkit_rhel8_2023.0.0.10926.b4452d56304_x86_64.tgz -O openvino.tgz
+        wget -q https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.0/linux/l_openvino_toolkit_ubuntu20_2023.0.0.10926.b4452d56304_x86_64.tgz -O openvino.tgz
         sudo mkdir -p /opt/intel/openvino
         sudo tar -xf openvino.tgz -C /opt/intel/openvino --strip-components=1
         sudo apt-get install -y libtbb2 libpugixml1v5
@@ -68,3 +68,13 @@ jobs:
       with:
         name: "pkg_lnx"
         path: "openvino_contrib/modules/java_api/build/libs/*.jar"
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        draft: true
+        prerelease: false
+        generate_release_notes: true
+        files: |
+          openvino_contrib/modules/java_api/build/libs/openvino-2023.0-linux-x86_64.jar
