@@ -69,11 +69,6 @@ jobs:
         ../../../gradle-6.9/bin/gradle test -Prun_tests -DMODELS_PATH=../../../testdata -Ddevice=CPU --info
       working-directory: openvino_contrib/modules/java_api
 
-    - name: Rename package
-      run: |
-        mv openvino-2023.3-linux-arm64.jar openvino-2023.3-linux-arm64.jar
-      working-directory: openvino_contrib/modules/java_api/build/libs
-
     - name: Upload
       uses: actions/upload-artifact@v2
       with:
