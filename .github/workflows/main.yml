@@ -25,11 +25,11 @@ jobs:
         key: "${{matrix.version}}"
         map: |
           {
-            "20": {
-              "OPENVINO_PACKAGE_URL": "https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.0/linux/l_openvino_toolkit_ubuntu20_2023.0.0.10926.b4452d56304_x86_64.tgz"
+            "22": {
+              "OPENVINO_PACKAGE_URL": "https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.3/linux/l_openvino_toolkit_ubuntu22_2023.3.0.13775.ceeafaf64f3_x86_64.tgz"
             },
-            ".*": {
-              "OPENVINO_PACKAGE_URL": "https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.0/linux/l_openvino_toolkit_rhel8_2023.0.0.10926.b4452d56304_x86_64.tgz"
+            "20": {
+              "OPENVINO_PACKAGE_URL": "https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.3/linux/l_openvino_toolkit_ubuntu20_2023.3.0.13775.ceeafaf64f3_x86_64.tgz"
             }
           }
         export_to: env
@@ -45,10 +45,10 @@ jobs:
 
     - name: Clone
       run: |
-        git clone https://github.com/makewise-vision/openvino_contrib -b releases/2023/0 --depth 1
-        cd openvino_contrib && echo "https://github.com/openvinotoolkit/openvino_contrib/commit/$(git rev-parse HEAD)" >> ../versions.txt && cd ..
+        git clone https://github.com/makewise-vision/openvino_contrib -b releases/2023/3 --depth 1
+        cd openvino_contrib && echo "https://github.com/makewise-vision/openvino_contrib/commit/$(git rev-parse HEAD)" >> ../versions.txt && cd ..
 
-        git clone https://github.com/openvinotoolkit/testdata -b releases/2023/0 --depth 1
+        git clone https://github.com/openvinotoolkit/testdata -b releases/2023/3 --depth 1
         cd testdata && git lfs pull
 
     - name: Upload versions.txt
@@ -67,7 +67,7 @@ jobs:
         wget -q ${{ env.OPENVINO_PACKAGE_URL }} -O openvino.tgz
         sudo mkdir -p /opt/intel/openvino
         sudo tar -xf openvino.tgz -C /opt/intel/openvino --strip-components=1
-        sudo apt-get install -y libtbb2 libpugixml1v5
+        sudo /opt/intel/openvino/install_dependencies/install_openvino_dependencies.sh -y
 
     - name: Build bindings
       run: |
@@ -88,7 +88,7 @@ jobs:
 
     - name: Rename package
       run: |
-        mv openvino-2023.0-linux-x86_64.jar openvino-2023.0-linux-x86_64-ubuntu${{ matrix.version }}.jar
+        mv openvino-2023.3-linux-x86_64.jar openvino-2023.3-linux-x86_64-ubuntu${{ matrix.version }}.jar
       working-directory: openvino_contrib/modules/java_api/build/libs
 
     - name: Upload
@@ -102,7 +102,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
-          openvino_contrib/modules/java_api/build/libs/openvino-2023.0-linux-x86_64-ubuntu${{ matrix.version }}.jar
+          openvino_contrib/modules/java_api/build/libs/openvino-2023.3-linux-x86_64-ubuntu${{ matrix.version }}.jar
 
   run_win:
     runs-on: windows-latest
@@ -117,7 +117,7 @@ jobs:
 
       - name: Clone
         run: |
-          git clone https://github.com/openvinotoolkit/openvino_contrib -b releases/2023/0 --depth 1
+          git clone https://github.com/makewise-vision/openvino_contrib -b releases/2023/3 --depth 1
           git clone https://github.com/openvinotoolkit/testdata
 
       - name: Install Java
@@ -127,9 +127,9 @@ jobs:
 
       - name: Download OpenVINO
         run: |
-          Invoke-WebRequest https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.0/windows/w_openvino_toolkit_windows_2023.0.0.10926.b4452d56304_x86_64.zip -OutFile openvino.zip
+          Invoke-WebRequest https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.3/windows/w_openvino_toolkit_windows_2023.3.0.13775.ceeafaf64f3_x86_64.zip -OutFile openvino.zip
           Expand-Archive -Path openvino.zip -DestinationPath "C:\Program Files (x86)\Intel"
-          Move-Item -Path "C:\Program Files (x86)\Intel\w_openvino_toolkit_windows_2023.0.0.10926.b4452d56304_x86_64" -Destination "C:\Program Files (x86)\Intel\openvino"
+          Move-Item -Path "C:\Program Files (x86)\Intel\w_openvino_toolkit_windows_2023.3.0.13775.ceeafaf64f3_x86_64" -Destination "C:\Program Files (x86)\Intel\openvino"
         shell: pwsh
 
       - name: Build bindings
@@ -160,7 +160,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            openvino_contrib/modules/java_api/build/libs/openvino-2023.0-windows-x86_64.jar
+            openvino_contrib/modules/java_api/build/libs/openvino-2023.3-windows-x86_64.jar
 
   run_mac:
     runs-on: macos-latest
@@ -175,7 +175,7 @@ jobs:
 
       - name: Clone
         run: |
-          git clone https://github.com/openvinotoolkit/openvino_contrib -b releases/2023/0 --depth 1
+          git clone https://github.com/makewise-vision/openvino_contrib -b releases/2023/3 --depth 1
           git clone https://github.com/openvinotoolkit/testdata
 
       - name: Install Java
@@ -190,7 +190,7 @@ jobs:
 
       - name: Install OpenVINO
         run: |
-          wget -q https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.0/macos/m_openvino_toolkit_macos_10_15_2023.0.0.10926.b4452d56304_x86_64.tgz -O openvino.tgz
+          wget -q https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.3/macos/m_openvino_toolkit_macos_10_15_2023.3.0.13775.ceeafaf64f3_x86_64.tgz -O openvino.tgz
           sudo mkdir -p /opt/intel/openvino
           sudo tar -xf openvino.tgz -C /opt/intel/openvino --strip-components=1
 
@@ -224,4 +224,4 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            openvino_contrib/modules/java_api/build/libs/openvino-2023.0-macosx-x86_64.jar
+            openvino_contrib/modules/java_api/build/libs/openvino-2023.3-macosx-x86_64.jar
