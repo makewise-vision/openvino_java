@@ -4,37 +4,18 @@ on:
   push:  
     # Sequence of patterns matched against refs/tags
     tags:        
-      - 'disable'
+      - '**'
 
 jobs:
   run_ubuntu_20:
-    strategy:
-      matrix:
-        version: [20, 22]
-
-    runs-on: ubuntu-${{ matrix.version }}.04
-    name: Build for Ubuntu-${{matrix.version}}
+   
+    runs-on: ubuntu-20.04
+    name: Build for Ubuntu-20
 
     permissions:
       contents: write
 
     steps:
-    - name: Map variables
-      uses: kanga333/variable-mapper@master
-      with:
-        key: "${{matrix.version}}"
-        map: |
-          {
-            "22": {
-              "OPENVINO_PACKAGE_URL": "https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.3/linux/l_openvino_toolkit_ubuntu22_2023.3.0.13775.ceeafaf64f3_x86_64.tgz"
-            },
-            "20": {
-              "OPENVINO_PACKAGE_URL": "https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.3/linux/l_openvino_toolkit_ubuntu20_2023.3.0.13775.ceeafaf64f3_x86_64.tgz"
-            }
-          }
-        export_to: env
-        mode: first_match
-
     - name: Clone repository
       uses: actions/checkout@v2
 
@@ -58,13 +39,15 @@ jobs:
         path: "versions.txt"
 
     - name: Install Java
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v4
       with:
-        java-version: '11.0.2'
+        distribution: 'temurin'
+        java-version: '11'
+        architecture: 'x86_64'
 
     - name: Install OpenVINO
       run: |
-        wget -q ${{ env.OPENVINO_PACKAGE_URL }} -O openvino.tgz
+        wget -q https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.3/linux/l_openvino_toolkit_ubuntu20_2023.3.0.13775.ceeafaf64f3_x86_64.tgz -O openvino.tgz
         sudo mkdir -p /opt/intel/openvino
         sudo tar -xf openvino.tgz -C /opt/intel/openvino --strip-components=1
         sudo /opt/intel/openvino/install_dependencies/install_openvino_dependencies.sh -y
@@ -86,11 +69,6 @@ jobs:
         ../../../gradle-6.9/bin/gradle test -Prun_tests -DMODELS_PATH=../../../testdata -Ddevice=CPU --info
       working-directory: openvino_contrib/modules/java_api
 
-    - name: Rename package
-      run: |
-        mv openvino-2023.3-linux-x86_64.jar openvino-2023.3-linux-x86_64-ubuntu${{ matrix.version }}.jar
-      working-directory: openvino_contrib/modules/java_api/build/libs
-
     - name: Upload
       uses: actions/upload-artifact@v2
       with:
@@ -102,7 +80,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
-          openvino_contrib/modules/java_api/build/libs/openvino-2023.3-linux-x86_64-ubuntu${{ matrix.version }}.jar
+          openvino_contrib/modules/java_api/build/libs/openvino-2023.3-linux-x86_64.jar
 
   run_win:
     runs-on: windows-latest
@@ -121,9 +99,11 @@ jobs:
           git clone https://github.com/openvinotoolkit/testdata
 
       - name: Install Java
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
-          java-version: '11.0.2'
+          distribution: 'temurin'
+          java-version: '11'
+          architecture: 'x86_64'
 
       - name: Download OpenVINO
         run: |
@@ -179,9 +159,11 @@ jobs:
           git clone https://github.com/openvinotoolkit/testdata
 
       - name: Install Java
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
-          java-version: '11.0.2'
+          distribution: 'temurin'
+          java-version: '11'
+          architecture: 'x86_64'
 
       - name: Setup Python 3.8
         uses: actions/setup-python@v2
