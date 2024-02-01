@@ -8,10 +8,9 @@ on:
 
 jobs:
   run_arm64:
-   
-    runs-on: ubuntu-${{ matrix.version }}.04
-    name: Build for Ubuntu-${{matrix.version}}
+    runs-on: self-hosted
 
+    name: Build for arm64
     permissions:
       contents: write
 
