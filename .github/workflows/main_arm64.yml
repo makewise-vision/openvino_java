@@ -42,6 +42,7 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: '11.0.2'
+        architecture: 'aarch64'
 
     - name: Install OpenVINO
       run: |
