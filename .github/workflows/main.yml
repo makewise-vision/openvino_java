@@ -80,7 +80,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
-          openvino_contrib/modules/java_api/build/libs/openvino-2023.3-linux-x86_64.jar
+          openvino_contrib/modules/java_api/build/libs/*.jar
 
   run_win:
     runs-on: windows-latest
@@ -140,7 +140,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            openvino_contrib/modules/java_api/build/libs/openvino-2023.3-windows-x86_64.jar
+            "openvino_contrib/modules/java_api/build/libs/*.jar"
 
   run_mac:
     runs-on: macos-latest
@@ -206,4 +206,4 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            openvino_contrib/modules/java_api/build/libs/openvino-2023.3-macosx-x86_64.jar
+            "openvino_contrib/modules/java_api/build/libs/*.jar"
