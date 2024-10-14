@@ -33,7 +33,7 @@ jobs:
         cd testdata && git lfs pull
 
     - name: Upload versions.txt
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: "versions"
         path: "versions.txt"
@@ -70,7 +70,7 @@ jobs:
       working-directory: openvino_contrib/modules/java_api
 
     - name: Upload
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: "pkg_lnx"
         path: "openvino_contrib/modules/java_api/build/libs/*.jar"
@@ -130,7 +130,7 @@ jobs:
         working-directory: openvino_contrib\\modules\\java_api
 
       - name: Upload
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: "pkg_win"
           path: "openvino_contrib\\modules\\java_api\\build\\libs\\*.jar"
@@ -196,7 +196,7 @@ jobs:
         working-directory: openvino_contrib/modules/java_api
 
       - name: Upload
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: "pkg_mac"
           path: "openvino_contrib/modules/java_api/build/libs/*.jar"
