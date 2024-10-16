@@ -7,10 +7,10 @@ on:
       - '**'
 
 jobs:
-  run_ubuntu_20:
+  run_ubuntu_22:
    
-    runs-on: ubuntu-20.04
-    name: Build for Ubuntu-20
+    runs-on: ubuntu-22.04
+    name: Build for Ubuntu-22
 
     permissions:
       contents: write
