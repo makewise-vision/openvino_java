@@ -47,7 +47,7 @@ jobs:
 
     - name: Install OpenVINO
       run: |
-        wget -q https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.4/linux/l_openvino_toolkit_ubuntu20_2024.4.0.16579.c3152d32c9c_x86_64.tgz -O openvino.tgz
+        wget -q https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.4/linux/l_openvino_toolkit_ubuntu22_2024.4.0.16579.c3152d32c9c_x86_64.tgz -O openvino.tgz
         sudo mkdir -p /opt/intel/openvino
         sudo tar -xf openvino.tgz -C /opt/intel/openvino --strip-components=1
         sudo /opt/intel/openvino/install_dependencies/install_openvino_dependencies.sh -y
