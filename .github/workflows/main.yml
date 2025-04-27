@@ -54,7 +54,7 @@ jobs:
     - name: Upload versions.txt
       uses: actions/upload-artifact@v4
       with:
-        name: "versions"
+        name: "versions_${{matrix.version}}"
         path: "versions.txt"
 
     - name: Install Java
@@ -96,7 +96,7 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: "pkg_lnx"
+        name: "pkg_lnx_${{matrix.version}}"
         path: "openvino_contrib/modules/java_api/build/libs/*.jar"
 
     - name: Release
