@@ -7,14 +7,34 @@ on:
       - '**'
 
 jobs:
-  run_ubuntu_24:
-    runs-on: ubuntu-24.04
-    name: Build for Ubuntu-24
+  run_ubuntu:
+    strategy:
+      matrix:
+        version: [ 22, 24 ]
+
+    runs-on: ubuntu-${{ matrix.version }}.04
+    name: Build for Ubuntu-${{matrix.version}}
 
     permissions:
       contents: write
 
     steps:
+    - name: Map variables
+      uses: kanga333/variable-mapper@master
+      with:
+        key: "${{matrix.version}}"
+        map: |
+          {
+            "24": {
+              "OPENVINO_PACKAGE_URL": "https://storage.openvinotoolkit.org/repositories/openvino/packages/2025.1/linux/openvino_toolkit_ubuntu24_2025.1.0.18503.6fec06580ab_x86_64.tgz"
+            },
+            "22": {
+              "OPENVINO_PACKAGE_URL": "https://storage.openvinotoolkit.org/repositories/openvino/packages/2025.1/linux/openvino_toolkit_ubuntu22_2025.1.0.18503.6fec06580ab_x86_64.tgz"
+            }
+          }
+        export_to: env
+        mode: first_match
+
     - name: Clone repository
       uses: actions/checkout@v2
 
@@ -46,7 +66,7 @@ jobs:
 
     - name: Install OpenVINO
       run: |
-        wget -q https://storage.openvinotoolkit.org/repositories/openvino/packages/2025.1/linux/openvino_toolkit_ubuntu24_2025.1.0.18503.6fec06580ab_x86_64.tgz -O openvino.tgz
+        wget -q ${{ env.OPENVINO_PACKAGE_URL }} -O openvino.tgz
         sudo mkdir -p /opt/intel/openvino
         sudo tar -xf openvino.tgz -C /opt/intel/openvino --strip-components=1
         sudo /opt/intel/openvino/install_dependencies/install_openvino_dependencies.sh -y
@@ -67,6 +87,11 @@ jobs:
         ../../../gradle-6.9/bin/gradle clean build --info
         ../../../gradle-6.9/bin/gradle test -Prun_tests -DMODELS_PATH=../../../testdata -Ddevice=CPU --info
       working-directory: openvino_contrib/modules/java_api
+
+    - name: Rename package
+      run: |
+        mv openvino-2025.1-linux-x86_64.jar openvino-2025.1-linux-x86_64-ubuntu${{ matrix.version }}.jar
+      working-directory: openvino_contrib/modules/java_api/build/libs
 
     - name: Upload
       uses: actions/upload-artifact@v4
