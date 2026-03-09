@@ -26,10 +26,10 @@ jobs:
         map: |
           {
             "24": {
-              "OPENVINO_PACKAGE_URL": "https://storage.openvinotoolkit.org/repositories/openvino/packages/2025.1/linux/openvino_toolkit_ubuntu24_2025.1.0.18503.6fec06580ab_x86_64.tgz"
+              "OPENVINO_PACKAGE_URL": "https://storage.openvinotoolkit.org/repositories/openvino/packages/2026.0/linux/openvino_toolkit_ubuntu24_2026.0.0.20965.c6d6a13a886_x86_64.tgz"
             },
             "22": {
-              "OPENVINO_PACKAGE_URL": "https://storage.openvinotoolkit.org/repositories/openvino/packages/2025.1/linux/openvino_toolkit_ubuntu22_2025.1.0.18503.6fec06580ab_x86_64.tgz"
+              "OPENVINO_PACKAGE_URL": "https://storage.openvinotoolkit.org/repositories/openvino/packages/2026.0/linux/openvino_toolkit_ubuntu22_2026.0.0.20965.c6d6a13a886_x86_64.tgz"
             }
           }
         export_to: env
@@ -45,10 +45,10 @@ jobs:
 
     - name: Clone
       run: |
-        git clone https://github.com/makewise-vision/openvino_contrib -b releases/2025/1 --depth 1
+        git clone https://github.com/makewise-vision/openvino_contrib -b releases/2026/0 --depth 1
         cd openvino_contrib && echo "https://github.com/makewise-vision/openvino_contrib/commit/$(git rev-parse HEAD)" >> ../versions.txt && cd ..
 
-        git clone https://github.com/openvinotoolkit/testdata -b releases/2025/1 --depth 1
+        git clone https://github.com/openvinotoolkit/testdata -b releases/2026/0 --depth 1
         cd testdata && git lfs pull
 
     - name: Upload versions.txt
@@ -90,7 +90,7 @@ jobs:
 
     - name: Rename package
       run: |
-        mv openvino-2025.1-linux-x86_64.jar openvino-2025.1-linux-x86_64-ubuntu${{ matrix.version }}.jar
+        mv openvino-2026.0-linux-x86_64.jar openvino-2026.0-linux-x86_64-ubuntu${{ matrix.version }}.jar
       working-directory: openvino_contrib/modules/java_api/build/libs
 
     - name: Upload
@@ -119,8 +119,8 @@ jobs:
 
       - name: Clone
         run: |
-          git clone https://github.com/makewise-vision/openvino_contrib -b releases/2025/1 --depth 1
-          git clone https://github.com/openvinotoolkit/testdata -b releases/2025/1 --depth 1
+          git clone https://github.com/makewise-vision/openvino_contrib -b releases/2026/0 --depth 1
+          git clone https://github.com/openvinotoolkit/testdata -b releases/2026/0 --depth 1
 
       - name: Install Java
         uses: actions/setup-java@v4
@@ -131,9 +131,9 @@ jobs:
 
       - name: Download OpenVINO
         run: |
-          Invoke-WebRequest https://storage.openvinotoolkit.org/repositories/openvino/packages/2025.1/windows/openvino_toolkit_windows_2025.1.0.18503.6fec06580ab_x86_64.zip -OutFile openvino.zip
+          Invoke-WebRequest https://storage.openvinotoolkit.org/repositories/openvino/packages/2026.0/windows/openvino_toolkit_windows_2026.0.0.20965.c6d6a13a886_x86_64.zip -OutFile openvino.zip
           Expand-Archive -Path openvino.zip -DestinationPath "C:\Program Files (x86)\Intel"
-          Move-Item -Path "C:\Program Files (x86)\Intel\openvino_toolkit_windows_2025.1.0.18503.6fec06580ab_x86_64" -Destination "C:\Program Files (x86)\Intel\openvino"
+          Move-Item -Path "C:\Program Files (x86)\Intel\openvino_toolkit_windows_2026.0.0.20965.c6d6a13a886_x86_64" -Destination "C:\Program Files (x86)\Intel\openvino"
         shell: pwsh
 
       - name: Build bindings
@@ -179,8 +179,8 @@ jobs:
 
       - name: Clone
         run: |
-          git clone https://github.com/makewise-vision/openvino_contrib -b releases/2025/1 --depth 1
-          git clone https://github.com/openvinotoolkit/testdata -b releases/2025/1 --depth 1
+          git clone https://github.com/makewise-vision/openvino_contrib -b releases/2026/0 --depth 1
+          git clone https://github.com/openvinotoolkit/testdata -b releases/2026/0 --depth 1
 
       - name: Install Java
         uses: actions/setup-java@v4
@@ -196,7 +196,7 @@ jobs:
 
       - name: Install OpenVINO
         run: |
-          wget -q https://storage.openvinotoolkit.org/repositories/openvino/packages/2025.1/macos/openvino_toolkit_macos_12_6_2025.1.0.18503.6fec06580ab_x86_64.tgz -O openvino.tgz
+          wget -q https://storage.openvinotoolkit.org/repositories/openvino/packages/2026.0/macos/openvino_toolkit_macos_12_6_2026.0.0.20965.c6d6a13a886_arm64.tgz -O openvino.tgz
           sudo mkdir -p /opt/intel/openvino
           sudo tar -xf openvino.tgz -C /opt/intel/openvino --strip-components=1
 
