@@ -64,7 +64,7 @@ jobs:
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '11'
+        java-version: '17'
         architecture: 'x86_64'
 
     - name: Install OpenVINO
@@ -129,7 +129,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: '17'
           architecture: 'x86_64'
 
       - name: Download OpenVINO
@@ -189,7 +189,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: '17'
           architecture: 'x86_64'
 
       - name: Setup Python 3.8
